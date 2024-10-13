@@ -16,8 +16,8 @@ pub fn generate_block(size: (f32, f32, f32), resolution: (u32, u32)) -> Vec<Vert
             let g = (c.0, -c.1, c.2);
             let h = (d.0, -d.1, d.2);
             [
-                Vertex::from_tuples(a, tc), Vertex::from_tuples(b, tc), Vertex::from_tuples(c, tc),
-                Vertex::from_tuples(b, tc), Vertex::from_tuples(d, tc), Vertex::from_tuples(c, tc),
+                Vertex::from_tuples(b, tc), Vertex::from_tuples(a, tc), Vertex::from_tuples(c, tc),
+                Vertex::from_tuples(d, tc), Vertex::from_tuples(b, tc), Vertex::from_tuples(c, tc),
             ]
         })
         .collect()
