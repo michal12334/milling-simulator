@@ -52,7 +52,7 @@ fn main() {
     );
     let mut camera_move_button_pressed = false;
 
-    let block = generate_block((15.0, 5.0, 15.0), (5, 5));
+    let block = generate_block((15.0, 5.0, 15.0), (1500, 1500));
     let vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
     let block_drawer = BlockDrawer::new(&display);
 

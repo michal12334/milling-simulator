@@ -27,14 +27,14 @@ pub fn generate_block(size: (f32, f32, f32), resolution: (u32, u32)) -> Vec<Vert
                 Vertex::from_tuples(d, tc, top_normal), Vertex::from_tuples(b, tc, top_normal), Vertex::from_tuples(c, tc, top_normal),
                 Vertex::from_tuples(e, tc, bottom_normal), Vertex::from_tuples(f, tc, bottom_normal), Vertex::from_tuples(g, tc, bottom_normal),
                 Vertex::from_tuples(f, tc, bottom_normal), Vertex::from_tuples(h, tc, bottom_normal), Vertex::from_tuples(g, tc, bottom_normal),
-                Vertex::from_tuples(b, tc, front_normal), Vertex::from_tuples(a, tc, front_normal), Vertex::from_tuples(e, tc, front_normal),
-                Vertex::from_tuples(e, tc, front_normal), Vertex::from_tuples(f, tc, front_normal), Vertex::from_tuples(b, tc, front_normal),
-                Vertex::from_tuples(f, tc, right_normal), Vertex::from_tuples(g, tc, right_normal), Vertex::from_tuples(c, tc, right_normal),
-                Vertex::from_tuples(c, tc, right_normal), Vertex::from_tuples(b, tc, right_normal), Vertex::from_tuples(f, tc, right_normal),
+                Vertex::from_tuples(a, tc, front_normal), Vertex::from_tuples(b, tc, front_normal), Vertex::from_tuples(e, tc, front_normal),
+                Vertex::from_tuples(f, tc, front_normal), Vertex::from_tuples(e, tc, front_normal), Vertex::from_tuples(b, tc, front_normal),
+                Vertex::from_tuples(h, tc, left_normal), Vertex::from_tuples(f, tc, left_normal), Vertex::from_tuples(d, tc, left_normal),
+                Vertex::from_tuples(b, tc, left_normal), Vertex::from_tuples(d, tc, left_normal), Vertex::from_tuples(f, tc, left_normal),
                 Vertex::from_tuples(d, tc, back_normal), Vertex::from_tuples(c, tc, back_normal), Vertex::from_tuples(g, tc, back_normal),
                 Vertex::from_tuples(g, tc, back_normal), Vertex::from_tuples(h, tc, back_normal), Vertex::from_tuples(d, tc, back_normal),
-                Vertex::from_tuples(a, tc, left_normal), Vertex::from_tuples(d, tc, left_normal), Vertex::from_tuples(h, tc, left_normal),
-                Vertex::from_tuples(h, tc, left_normal), Vertex::from_tuples(e, tc, left_normal), Vertex::from_tuples(a, tc, left_normal),
+                Vertex::from_tuples(c, tc, right_normal), Vertex::from_tuples(a, tc, right_normal), Vertex::from_tuples(g, tc, right_normal),
+                Vertex::from_tuples(e, tc, right_normal), Vertex::from_tuples(g, tc, right_normal), Vertex::from_tuples(a, tc, right_normal),
             ]
         })
         .collect()

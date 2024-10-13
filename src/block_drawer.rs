@@ -51,7 +51,7 @@ impl BlockDrawer {
 
             out vec4 frag_color;
 
-            const vec3 light_pos = vec3(7.0, 7.0, -7.0);
+            const vec3 light_pos = vec3(7.0, 25.0, -7.0);
             const vec3 color = vec3(0.8, 0.8, 0.8);
 
             uniform vec3 cam_pos;
