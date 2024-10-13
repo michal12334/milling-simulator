@@ -18,6 +18,16 @@ pub fn generate_block(size: (f32, f32, f32), resolution: (u32, u32)) -> Vec<Vert
             [
                 Vertex::from_tuples(b, tc), Vertex::from_tuples(a, tc), Vertex::from_tuples(c, tc),
                 Vertex::from_tuples(d, tc), Vertex::from_tuples(b, tc), Vertex::from_tuples(c, tc),
+                Vertex::from_tuples(e, tc), Vertex::from_tuples(f, tc), Vertex::from_tuples(g, tc),
+                Vertex::from_tuples(f, tc), Vertex::from_tuples(h, tc), Vertex::from_tuples(g, tc),
+                Vertex::from_tuples(b, tc), Vertex::from_tuples(a, tc), Vertex::from_tuples(e, tc),
+                Vertex::from_tuples(e, tc), Vertex::from_tuples(f, tc), Vertex::from_tuples(b, tc),
+                Vertex::from_tuples(c, tc), Vertex::from_tuples(b, tc), Vertex::from_tuples(f, tc),
+                Vertex::from_tuples(f, tc), Vertex::from_tuples(g, tc), Vertex::from_tuples(c, tc),
+                Vertex::from_tuples(d, tc), Vertex::from_tuples(c, tc), Vertex::from_tuples(g, tc),
+                Vertex::from_tuples(g, tc), Vertex::from_tuples(h, tc), Vertex::from_tuples(d, tc),
+                Vertex::from_tuples(a, tc), Vertex::from_tuples(d, tc), Vertex::from_tuples(h, tc),
+                Vertex::from_tuples(h, tc), Vertex::from_tuples(e, tc), Vertex::from_tuples(a, tc),
             ]
         })
         .collect()
