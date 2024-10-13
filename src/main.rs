@@ -7,8 +7,8 @@ use chrono::Local;
 use egui::ViewportId;
 use generate_block::generate_block;
 use glium::Surface;
-use nalgebra::{Matrix4, Point3, Vector3};
-use winit::event;
+use nalgebra::{Matrix4, Point3, Vector3, Vector4};
+use winit::event::{self, ElementState, MouseButton};
 
 fn main() {
     let width = 800;
@@ -49,6 +49,7 @@ fn main() {
         &Point3::new(0.0, 0.0, 0.0),
         &camera_up,
     );
+    let mut camera_move_button_pressed = false;
 
     let block = generate_block((15.0, 5.0, 15.0), (1500, 1500));
     let vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
@@ -93,13 +94,75 @@ fn main() {
                     }
                     WindowEvent::Resized(new_size) => {
                         display.resize((*new_size).into());
-                        // perspective = Matrix4::new_perspective(
-                        //     new_size.width as f32 / new_size.height as f32,
-                        //     std::f32::consts::PI / 2.0,
-                        //     0.1,
-                        //     100.0,
-                        // );
+                        perspective = Matrix4::new_perspective(
+                            new_size.width as f32 / new_size.height as f32,
+                            std::f32::consts::PI / 2.0,
+                            0.1,
+                            100.0,
+                        );
                     }
+                    WindowEvent::CursorMoved { position, .. } => {
+                        let delta = (position.x - mouse_position.0, position.y - mouse_position.1);
+                        mouse_position = (position.x, position.y);
+                        if camera_move_button_pressed {
+                            camera_angle.x += delta.1 as f32 * 0.01;
+                            camera_angle.y += delta.0 as f32
+                                * 0.01
+                                * if camera_angle.x.cos() < 0.0 {
+                                    -1.0
+                                } else {
+                                    1.0
+                                };
+                            camera_direction =
+                                (Matrix4::from_euler_angles(camera_angle.x, camera_angle.y, 0.0)
+                                    * Vector4::new(0.0, 0.0, 1.0, 0.0))
+                                .xyz();
+                            camera_up =
+                                (Matrix4::from_euler_angles(camera_angle.x, camera_angle.y, 0.0)
+                                    * Vector4::new(0.0, 1.0, 0.0, 0.0))
+                                .xyz();
+                            view = Matrix4::look_at_rh(
+                                &Point3::from_slice(
+                                    (-camera_distant * camera_direction).as_slice(),
+                                ),
+                                &Point3::new(0.0, 0.0, 0.0),
+                                &camera_up,
+                            );
+                        }
+                    }
+                    WindowEvent::MouseInput { state, button, .. } => {
+                        if *button == MouseButton::Middle {
+                            camera_move_button_pressed = *state == ElementState::Pressed;
+                        }
+                    }
+                    WindowEvent::KeyboardInput { device_id: _, event, is_synthetic: _ } => {
+                        if event.logical_key == "c" && event.state.is_pressed() && !event.repeat {
+                            camera_move_button_pressed = !camera_move_button_pressed;
+                        }
+                    }
+                    WindowEvent::MouseWheel { delta, .. } => match delta {
+                        event::MouseScrollDelta::LineDelta(_x, y) => {
+                            camera_distant += -y * 0.1;
+                            view = Matrix4::look_at_rh(
+                                &Point3::from_slice(
+                                    (-camera_distant * camera_direction).as_slice(),
+                                ),
+                                &Point3::new(0.0, 0.0, 0.0),
+                                &camera_up,
+                            );
+                        }
+                        _ => {}
+                    },
+                    WindowEvent::TouchpadMagnify { delta, .. } => {
+                        camera_distant -= *delta as f32 * 3.0;
+                        view = Matrix4::look_at_rh(
+                            &Point3::from_slice(
+                                (-camera_distant * camera_direction).as_slice(),
+                            ),
+                            &Point3::new(0.0, 0.0, 0.0),
+                            &camera_up,
+                        );
+                    },
                     _ => {}
                 }
 
