@@ -1,5 +1,5 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{uniform, Display, DrawParameters, Frame, IndexBuffer, Program, Surface, VertexBuffer};
+use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
 use nalgebra::Matrix4;
 
 use crate::vertex::Vertex;
