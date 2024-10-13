@@ -13,7 +13,7 @@ pub fn generate_block(size: (f32, f32, f32), resolution: (u32, u32)) -> Vec<Vert
         .flat_map(|x| (0..resolution.1).map(move |z| (x, z)))
         .flat_map(|(x, z)| {
             let tc = (x as f32 / ((resolution.0 - 1) as f32), z as f32 / ((resolution.1 - 1) as f32));
-            let a = ((x as f32 / resolution.0 as f32 - 0.5) * size.0, size.1, (z as f32 / resolution.1 as f32 - 0.5) * size.2);
+            let a = ((x as f32 / resolution.0 as f32 - 0.5) * size.0, size.1 / 2.0, (z as f32 / resolution.1 as f32 - 0.5) * size.2);
             let b = (a.0 + single_size.0, a.1, a.2);
             let c = (a.0, a.1, a.2 + single_size.1);
             let d = (a.0 + single_size.0, a.1, a.2 + single_size.1);

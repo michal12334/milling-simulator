@@ -1,5 +1,5 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
+use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, Texture2d, VertexBuffer};
 use nalgebra::{Matrix4, Vector3};
 
 use crate::vertex::Vertex;
@@ -16,16 +16,25 @@ impl BlockDrawer {
     
             in vec3 position;
             in int normal;
+            in vec2 tex_coords;
 
             out vec3 normal_out;
             out vec3 world;
+
+            uniform sampler2D height_map;
             
             uniform mat4 perspective;
             uniform mat4 view;
     
             void main() {
-                world = position;
-                gl_Position = perspective * view * vec4(position, 1.0);
+                float height = position.y;
+
+                if (height > 0) {
+                    height = texture(height_map, tex_coords).x / 2.0;
+                }
+
+                world = vec3(position.x, height, position.z);
+                gl_Position = perspective * view * vec4(world, 1.0);
 
                 if (normal == 0) {
                     normal_out = vec3(0.0, 1.0, 0.0);
@@ -82,7 +91,8 @@ impl BlockDrawer {
         perspective: &Matrix4<f32>,
         view_matrix: &Matrix4<f32>,
         drawing_parameters: &DrawParameters,
-        camera_position: Vector3<f32>
+        camera_position: Vector3<f32>,
+        height_map: &Texture2d,
     ) {
         let index_buffer = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -95,6 +105,9 @@ impl BlockDrawer {
                     perspective: perspective.data.0,
                     view: view_matrix.data.0,
                     cam_pos: camera_position.data.0[0],
+                    height_map: height_map.sampled()
+                        .minify_filter(glium::uniforms::MinifySamplerFilter::Nearest)
+                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
                 },
                 &drawing_parameters,
             )

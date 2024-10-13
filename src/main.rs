@@ -2,11 +2,13 @@ pub mod vertex;
 pub mod generate_block;
 pub mod block_drawer;
 
+use std::vec;
+
 use block_drawer::BlockDrawer;
 use chrono::Local;
 use egui::ViewportId;
 use generate_block::generate_block;
-use glium::Surface;
+use glium::{Rect, Surface, Texture2d};
 use nalgebra::{Matrix4, Point3, Vector3, Vector4};
 use winit::event::{self, ElementState, MouseButton};
 
@@ -52,9 +54,23 @@ fn main() {
     );
     let mut camera_move_button_pressed = false;
 
-    let block = generate_block((15.0, 5.0, 15.0), (1500, 1500));
+    let block_size = (15.0, 5.0, 15.0);
+    let block_resolution = (1500, 1500);
+    let block = generate_block(block_size, block_resolution);
     let vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
     let block_drawer = BlockDrawer::new(&display);
+
+    let height_map = Texture2d::empty_with_format(
+        &display,
+        glium::texture::UncompressedFloatFormat::F32,
+        glium::texture::MipmapsOption::NoMipmap,
+        block_resolution.0,
+        block_resolution.1,
+    )
+    .unwrap();
+
+    height_map.write(Rect { left: 0, bottom: 0, width: block_resolution.0, height: block_resolution.1, }, vec![vec![block_size.1; block_resolution.0 as usize]; block_resolution.1 as usize]);
+    height_map.write(Rect { left: 500, bottom: 500, width: 500, height: 500, }, vec![vec![block_size.1 / 2.0; 500]; 500]);
 
     let mut previous_time = Local::now();
 
@@ -78,7 +94,7 @@ fn main() {
 
             target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-            block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction);
+            block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction, &height_map);
 
             egui_glium.paint(&display, &mut target);
 
