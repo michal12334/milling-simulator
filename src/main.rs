@@ -1,6 +1,13 @@
+pub mod vertex;
+pub mod generate_block;
+pub mod block_drawer;
+
+use block_drawer::BlockDrawer;
 use chrono::Local;
 use egui::ViewportId;
+use generate_block::generate_block;
 use glium::Surface;
+use nalgebra::{Matrix4, Point3, Vector3};
 use winit::event;
 
 fn main() {
@@ -15,6 +22,37 @@ fn main() {
 
     let mut egui_glium =
         egui_glium::EguiGlium::new(ViewportId::ROOT, &display, &window, &event_loop);
+
+    let drawing_parameters = glium::DrawParameters {
+        depth: glium::Depth {
+            test: glium::draw_parameters::DepthTest::IfLess,
+            write: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let mut perspective = Matrix4::new_perspective(
+        width as f32 / height as f32,
+        std::f32::consts::PI / 2.0,
+        0.1,
+        100.0,
+    );
+
+    let mut mouse_position = (0.0, 0.0);
+    let mut camera_direction = Vector3::new(0.0f32, 0.0, 1.0);
+    let mut camera_angle = Vector3::new(0.0f32, 0.0, 0.0);
+    let mut camera_up = Vector3::new(0.0f32, 1.0, 0.0);
+    let mut camera_distant = 4.0f32;
+    let mut view = Matrix4::look_at_rh(
+        &Point3::from_slice((-camera_distant * camera_direction).as_slice()),
+        &Point3::new(0.0, 0.0, 0.0),
+        &camera_up,
+    );
+
+    let block = generate_block((15.0, 5.0, 15.0), (1500, 1500));
+    let vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
+    let block_drawer = BlockDrawer::new(&display);
 
     let mut previous_time = Local::now();
 
@@ -37,6 +75,8 @@ fn main() {
             let mut target = display.draw();
 
             target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+
+            block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters);
 
             egui_glium.paint(&display, &mut target);
 
