@@ -13,12 +13,12 @@ use nalgebra::{Matrix4, Point3, Vector3, Vector4};
 use winit::event::{self, ElementState, MouseButton};
 
 fn main() {
-    let width = 800;
-    let height = 600;
+    let width = 1600;
+    let height = 1200;
 
     let event_loop = winit::event_loop::EventLoopBuilder::new().build().unwrap();
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
-        .with_title("Duck")
+        .with_title("Milling simulator")
         .with_inner_size(width, height)
         .build(&event_loop);
 
@@ -46,7 +46,7 @@ fn main() {
     let mut camera_direction = Vector3::new(0.0f32, 0.0, 1.0);
     let mut camera_angle = Vector3::new(0.0f32, 0.0, 0.0);
     let mut camera_up = Vector3::new(0.0f32, 1.0, 0.0);
-    let mut camera_distant = 4.0f32;
+    let mut camera_distant = 20.0f32;
     let mut view = Matrix4::look_at_rh(
         &Point3::from_slice((-camera_distant * camera_direction).as_slice()),
         &Point3::new(0.0, 0.0, 0.0),
