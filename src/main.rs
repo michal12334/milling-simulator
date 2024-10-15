@@ -108,6 +108,11 @@ fn main() {
                             height_map = HeightMap::new(block_resolution, block_size.1, &display);
                             block_created = true;
                         }
+                    } else {
+                        if ui.button("Reset").clicked() {
+                            block_created = false;
+                            height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                        }
                     }
 
                     ui.label(format!("FPS: {:.1}", fps));
