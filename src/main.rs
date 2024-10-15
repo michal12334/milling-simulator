@@ -4,16 +4,19 @@ pub mod block_drawer;
 pub mod height_map;
 pub mod g_code_instruction;
 pub mod g_code;
+mod g_code_drawer;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
 use egui::{DragValue, ViewportId, Widget};
 use g_code::GCode;
+use g_code_drawer::GCodeDrawer;
 use generate_block::generate_block;
 use glium::Surface;
 use height_map::HeightMap;
 use nalgebra::{Matrix4, Point3, Vector3, Vector4};
 use rfd::FileDialog;
+use vertex::SmallVertex;
 use winit::event::{self, ElementState, MouseButton};
 
 fn main() {
@@ -68,7 +71,9 @@ fn main() {
 
     let mut block_created = false;
 
-    let mut g_code = None;
+    let mut g_code: Option<GCode> = None;
+    let mut g_code_vertices = glium::VertexBuffer::new(&display, &[]).unwrap();
+    let g_code_drawer = GCodeDrawer::new(&display);
 
     let mut previous_time = Local::now();
 
@@ -124,6 +129,14 @@ fn main() {
                             let path = FileDialog::new().pick_file().unwrap();
                             let path = path.to_str().unwrap();
                             g_code = Some(GCode::from_file(path));
+                            let mut vertices: Vec<SmallVertex> = Vec::new();
+                            for instruction in g_code.clone().unwrap().instructions() {
+                                let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
+                                let y = instruction.y().unwrap_or_else(|| vertices.last().unwrap().position()[1]);
+                                let z = instruction.z().unwrap_or_else(|| vertices.last().unwrap().position()[2]);
+                                vertices.push(SmallVertex::new([x, y, z]));
+                            }
+                            g_code_vertices = glium::VertexBuffer::new(&display, &vertices).unwrap();
                         }
                     }
 
@@ -138,6 +151,10 @@ fn main() {
             target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
             block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction, height_map.get_texture());
+
+            if g_code.is_some() {
+                g_code_drawer.draw(&mut target, &g_code_vertices, &perspective, &view, &drawing_parameters);
+            }
 
             egui_glium.paint(&display, &mut target);
 
