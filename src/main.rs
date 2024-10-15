@@ -3,14 +3,17 @@ pub mod generate_block;
 pub mod block_drawer;
 pub mod height_map;
 pub mod g_code_instruction;
+pub mod g_code;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
 use egui::{DragValue, ViewportId, Widget};
+use g_code::GCode;
 use generate_block::generate_block;
 use glium::Surface;
 use height_map::HeightMap;
 use nalgebra::{Matrix4, Point3, Vector3, Vector4};
+use rfd::FileDialog;
 use winit::event::{self, ElementState, MouseButton};
 
 fn main() {
@@ -65,6 +68,8 @@ fn main() {
 
     let mut block_created = false;
 
+    let mut g_code = None;
+
     let mut previous_time = Local::now();
 
     let _ = event_loop.run(move |event, window_target| {
@@ -113,6 +118,12 @@ fn main() {
                         if ui.button("Reset").clicked() {
                             block_created = false;
                             height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                        }
+
+                        if ui.button("Load code").clicked() {
+                            let path = FileDialog::new().pick_file().unwrap();
+                            let path = path.to_str().unwrap();
+                            g_code = Some(GCode::from_file(path));
                         }
                     }
 
