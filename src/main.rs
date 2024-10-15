@@ -46,7 +46,7 @@ fn main() {
         width as f32 / height as f32,
         std::f32::consts::PI / 2.0,
         0.1,
-        100.0,
+        1000.0,
     );
 
     let mut mouse_position = (0.0, 0.0);
@@ -183,7 +183,7 @@ fn main() {
                             new_size.width as f32 / new_size.height as f32,
                             std::f32::consts::PI / 2.0,
                             0.1,
-                            100.0,
+                            1000.0,
                         );
                     }
                     WindowEvent::CursorMoved { position, .. } => {
