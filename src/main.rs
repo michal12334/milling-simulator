@@ -2,6 +2,7 @@ pub mod vertex;
 pub mod generate_block;
 pub mod block_drawer;
 pub mod height_map;
+pub mod g_code_instruction;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
