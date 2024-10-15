@@ -5,7 +5,7 @@ pub mod height_map;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
-use egui::ViewportId;
+use egui::{DragValue, ViewportId, Widget};
 use generate_block::generate_block;
 use glium::Surface;
 use height_map::HeightMap;
@@ -54,13 +54,15 @@ fn main() {
     );
     let mut camera_move_button_pressed = false;
 
-    let block_size = (15.0, 5.0, 15.0);
-    let block_resolution = (1500, 1500);
-    let block = generate_block(block_size, block_resolution);
-    let vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
+    let mut block_size = (15.0, 5.0, 15.0);
+    let mut block_resolution = (600, 600);
+    let mut block = generate_block(block_size, block_resolution);
+    let mut vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
     let block_drawer = BlockDrawer::new(&display);
 
     let mut height_map = HeightMap::new(block_resolution, block_size.1, &display);
+
+    let mut block_created = false;
 
     let mut previous_time = Local::now();
 
@@ -74,6 +76,40 @@ fn main() {
 
             egui_glium.run(&window, |egui_ctx| {
                 egui::Window::new("panel").show(egui_ctx, |ui| {
+                    if !block_created {
+                        ui.horizontal(|ui| {
+                            ui.label("size x: ");
+                            DragValue::new(&mut block_size.0).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            ui.label("cm");
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("size y: ");
+                            DragValue::new(&mut block_size.1).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            ui.label("cm");
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("size z: ");
+                            DragValue::new(&mut block_size.2).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            ui.label("cm");
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label("resoultion x: ");
+                            DragValue::new(&mut block_resolution.0).clamp_range(10..=1500).ui(ui);
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("resoultion z: ");
+                            DragValue::new(&mut block_resolution.1).clamp_range(10..=1500).ui(ui);
+                        });
+
+                        if ui.button("Create block").clicked() {
+                            block = generate_block(block_size, block_resolution);
+                            vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
+                            height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                            block_created = true;
+                        }
+                    }
+
                     ui.label(format!("FPS: {:.1}", fps));
                 });
             });
