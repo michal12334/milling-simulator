@@ -134,7 +134,7 @@ fn main() {
                                 let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
                                 let y = instruction.y().unwrap_or_else(|| vertices.last().unwrap().position()[1]);
                                 let z = instruction.z().unwrap_or_else(|| vertices.last().unwrap().position()[2]);
-                                vertices.push(SmallVertex::new([x, y, z]));
+                                vertices.push(SmallVertex::new([x, z, y]));
                             }
                             g_code_vertices = glium::VertexBuffer::new(&display, &vertices).unwrap();
                         }
