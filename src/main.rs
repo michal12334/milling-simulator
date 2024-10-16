@@ -123,6 +123,7 @@ fn main() {
                         if ui.button("Reset").clicked() {
                             block_created = false;
                             height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                            g_code = None;
                         }
 
                         if ui.button("Load code").clicked() {
