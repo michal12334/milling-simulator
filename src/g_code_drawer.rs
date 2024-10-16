@@ -20,7 +20,7 @@ impl GCodeDrawer {
             uniform mat4 view;
 
             void main() {
-                gl_Position = perspective * view * vec4(position, 1.0);
+                gl_Position = perspective * view * vec4(position / 10.0, 1.0);
             }
         "#;
 
