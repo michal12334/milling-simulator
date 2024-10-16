@@ -45,4 +45,8 @@ impl HeightMap {
         }
         self.changed_indices.clear();
     }
+
+    pub fn get_height(&self, index: (usize, usize)) -> f32 {
+        self.data[index.0][index.1]
+    }
 }

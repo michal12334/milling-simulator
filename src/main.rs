@@ -4,14 +4,16 @@ pub mod block_drawer;
 pub mod height_map;
 pub mod g_code_instruction;
 pub mod g_code;
-mod g_code_drawer;
+pub mod g_code_drawer;
 pub mod milling_cutter;
+pub mod g_code_executor;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
 use egui::{DragValue, ViewportId, Widget};
 use g_code::GCode;
 use g_code_drawer::GCodeDrawer;
+use g_code_executor::GCodeExecutor;
 use generate_block::generate_block;
 use glium::Surface;
 use height_map::HeightMap;
@@ -72,7 +74,8 @@ fn main() {
 
     let mut block_created = false;
 
-    let mut g_code: Option<GCode> = None;
+    let mut g_code_loaded = false;
+    let mut g_code_executor: Option<GCodeExecutor> = None;
     let mut g_code_vertices = glium::VertexBuffer::new(&display, &[]).unwrap();
     let g_code_drawer = GCodeDrawer::new(&display);
 
@@ -124,21 +127,32 @@ fn main() {
                         if ui.button("Reset").clicked() {
                             block_created = false;
                             height_map = HeightMap::new(block_resolution, block_size.1, &display);
-                            g_code = None;
+                            g_code_loaded = false;
                         }
 
                         if ui.button("Load code").clicked() {
                             let path = FileDialog::new().pick_file().unwrap();
                             let path = path.to_str().unwrap();
-                            g_code = GCode::from_file(path);
-                            let mut vertices: Vec<SmallVertex> = Vec::new();
-                            for instruction in g_code.clone().unwrap().instructions() {
-                                let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
-                                let y = instruction.y().unwrap_or_else(|| vertices.last().unwrap().position()[1]);
-                                let z = instruction.z().unwrap_or_else(|| vertices.last().unwrap().position()[2]);
-                                vertices.push(SmallVertex::new([x, z, y]));
+                            let g_code = GCode::from_file(path);
+
+                            if g_code.is_some() {
+                                g_code_loaded = true;
+                                let mut vertices: Vec<SmallVertex> = Vec::new();
+                                for instruction in g_code.clone().unwrap().instructions() {
+                                    let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
+                                    let y = instruction.y().unwrap_or_else(|| vertices.last().unwrap().position()[1]);
+                                    let z = instruction.z().unwrap_or_else(|| vertices.last().unwrap().position()[2]);
+                                    vertices.push(SmallVertex::new([x, z, y]));
+                                }
+                                g_code_vertices = glium::VertexBuffer::new(&display, &vertices).unwrap();
+
+                                if g_code_executor.is_some() {
+                                    let g_code_executor = g_code_executor.as_mut().unwrap();
+                                    g_code_executor.load(g_code.unwrap());
+                                } else {
+                                    g_code_executor = Some(GCodeExecutor::new(g_code.unwrap(), block_resolution, block_size));
+                                }
                             }
-                            g_code_vertices = glium::VertexBuffer::new(&display, &vertices).unwrap();
                         }
                     }
 
@@ -154,7 +168,7 @@ fn main() {
 
             block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction, height_map.get_texture());
 
-            if g_code.is_some() {
+            if g_code_loaded {
                 g_code_drawer.draw(&mut target, &g_code_vertices, &perspective, &view, &drawing_parameters);
             }
 
