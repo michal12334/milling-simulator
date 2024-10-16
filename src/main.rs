@@ -5,6 +5,7 @@ pub mod height_map;
 pub mod g_code_instruction;
 pub mod g_code;
 mod g_code_drawer;
+pub mod milling_cutter;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
@@ -129,7 +130,7 @@ fn main() {
                         if ui.button("Load code").clicked() {
                             let path = FileDialog::new().pick_file().unwrap();
                             let path = path.to_str().unwrap();
-                            g_code = Some(GCode::from_file(path));
+                            g_code = GCode::from_file(path);
                             let mut vertices: Vec<SmallVertex> = Vec::new();
                             for instruction in g_code.clone().unwrap().instructions() {
                                 let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
