@@ -9,19 +9,19 @@ pub struct HeightMap {
 }
 
 impl HeightMap {
-    pub fn new(resolution: (u32, u32), height: f32, display: &Display<WindowSurface>) -> Self {
+    pub fn new(resolution: (u32, u32, u32), height: f32, display: &Display<WindowSurface>) -> Self {
         let texture = Texture2d::empty_with_format(
             display,
             glium::texture::UncompressedFloatFormat::F32,
             glium::texture::MipmapsOption::NoMipmap,
             resolution.0,
-            resolution.1,
+            resolution.2,
         )
         .unwrap();
 
-        let data = vec![vec![height; resolution.0 as usize]; resolution.1 as usize];
+        let data = vec![vec![height; resolution.0 as usize]; resolution.2 as usize];
 
-        texture.write(Rect { left: 0, bottom: 0, width: resolution.0, height: resolution.1 }, data.clone());
+        texture.write(Rect { left: 0, bottom: 0, width: resolution.0, height: resolution.2 }, data.clone());
 
         Self {
             texture,

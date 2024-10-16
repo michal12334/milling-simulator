@@ -65,7 +65,7 @@ fn main() {
     let mut camera_move_button_pressed = false;
 
     let mut block_size = (15.0, 5.0, 15.0);
-    let mut block_resolution = (600, 600);
+    let mut block_resolution = (600, 600, 600);
     let mut block = generate_block(block_size, block_resolution);
     let mut vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
     let block_drawer = BlockDrawer::new(&display);
@@ -114,7 +114,7 @@ fn main() {
                         });
                         ui.horizontal(|ui| {
                             ui.label("resoultion z: ");
-                            DragValue::new(&mut block_resolution.1).clamp_range(10..=1500).ui(ui);
+                            DragValue::new(&mut block_resolution.2).clamp_range(10..=1500).ui(ui);
                         });
 
                         if ui.button("Create block").clicked() {
@@ -176,10 +176,9 @@ fn main() {
 
             target.finish().unwrap();
 
-            for i in 0..100 {
-                for j in 0..100 {
-                    height_map.write((i, j), 2.0);
-                }
+            if g_code_executor.is_some() {
+                let g_code_executor = g_code_executor.as_mut().unwrap();
+                g_code_executor.execute_step(&mut height_map);
             }
 
             height_map.update_texture();
