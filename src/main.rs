@@ -118,6 +118,10 @@ fn main() {
                             DragValue::new(&mut block_resolution.0).clamp_range(10..=1500).ui(ui);
                         });
                         ui.horizontal(|ui| {
+                            ui.label("resoultion y: ");
+                            DragValue::new(&mut block_resolution.1).clamp_range(10..=1500).ui(ui);
+                        });
+                        ui.horizontal(|ui| {
                             ui.label("resoultion z: ");
                             DragValue::new(&mut block_resolution.2).clamp_range(10..=1500).ui(ui);
                         });
