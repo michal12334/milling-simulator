@@ -82,6 +82,7 @@ fn main() {
     let g_code_drawer = GCodeDrawer::new(&display);
     let g_code_executor_drawer = GCodeExecutorDrawer::new(&display);
     let mut milling_speed = 1u32;
+    let mut draw_g_code_lines = true;
 
     let mut previous_time = Local::now();
 
@@ -163,6 +164,8 @@ fn main() {
                             ui.label("Speed: ");
                             DragValue::new(&mut milling_speed).clamp_range(1..=1000).ui(ui);
                         });
+
+                        ui.checkbox(&mut draw_g_code_lines, "Draw lines");
                     }
 
                     ui.label(format!("FPS: {:.1}", fps));
@@ -177,7 +180,7 @@ fn main() {
 
             block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction, height_map.get_texture());
 
-            if g_code_loaded {
+            if g_code_loaded && draw_g_code_lines {
                 g_code_drawer.draw(&mut target, &g_code_vertices, &perspective, &view, &drawing_parameters);
             }
 
