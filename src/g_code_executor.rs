@@ -63,7 +63,7 @@ impl GCodeExecutor {
                 let z_offset = single_size.1 * z as f32;
                 let y_offset = match code.cutter() {
                     MillingCutter::Flat(_) => 0.0,
-                    MillingCutter::Spherical(_) => (cutter_size.powi(2) - x_offset.powi(2) - z_offset.powi(2)).sqrt() + cutter_size,
+                    MillingCutter::Spherical(_) => cutter_size - (cutter_size.powi(2) - x_offset.powi(2) - z_offset.powi(2)).max(0.0).sqrt(),
                 };
 
                 CutterPart::new((x, z), (x_offset, y_offset, z_offset))
