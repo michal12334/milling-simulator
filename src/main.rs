@@ -72,7 +72,7 @@ fn main() {
     let mut vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
     let block_drawer = BlockDrawer::new(&display);
 
-    let mut height_map = HeightMap::new(block_resolution, block_size.1, &display);
+    let mut height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
 
     let mut block_created = false;
 
@@ -123,13 +123,13 @@ fn main() {
                         if ui.button("Create block").clicked() {
                             block = generate_block(block_size, block_resolution);
                             vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
-                            height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                            height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             block_created = true;
                         }
                     } else {
                         if ui.button("Reset").clicked() {
                             block_created = false;
-                            height_map = HeightMap::new(block_resolution, block_size.1, &display);
+                            height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             g_code_loaded = false;
                         }
 

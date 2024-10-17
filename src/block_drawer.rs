@@ -30,7 +30,7 @@ impl BlockDrawer {
                 float height = position.y;
 
                 if (height > 0) {
-                    height = texture(height_map, tex_coords).x / 2.0;
+                    height = texture(height_map, tex_coords).x;
                 }
 
                 world = vec3(position.x, height, position.z);
