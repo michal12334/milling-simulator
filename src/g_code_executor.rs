@@ -50,7 +50,7 @@ impl GCodeExecutor {
         let cutter_size = match code.cutter() {
             MillingCutter::Flat(size) => *size,
             MillingCutter::Spherical(size) => *size,
-        } as f32 / 10.0;
+        } as f32 / 20.0;
 
         let single_size: (f32, f32) = (size.0 / (resolution.0 as f32), size.2 / (resolution.2 as f32));
 
