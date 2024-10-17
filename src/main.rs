@@ -81,6 +81,7 @@ fn main() {
     let mut g_code_vertices = glium::VertexBuffer::new(&display, &[]).unwrap();
     let g_code_drawer = GCodeDrawer::new(&display);
     let g_code_executor_drawer = GCodeExecutorDrawer::new(&display);
+    let mut milling_speed = 1u32;
 
     let mut previous_time = Local::now();
 
@@ -157,6 +158,11 @@ fn main() {
                                 }
                             }
                         }
+
+                        ui.horizontal(|ui| {
+                            ui.label("Speed: ");
+                            DragValue::new(&mut milling_speed).clamp_range(1..=1000).ui(ui);
+                        });
                     }
 
                     ui.label(format!("FPS: {:.1}", fps));
@@ -177,7 +183,9 @@ fn main() {
 
             if g_code_executor.is_some() {
                 let g_code_executor = g_code_executor.as_mut().unwrap();
-                g_code_executor.execute_step(&mut height_map);
+                for _ in 0..milling_speed {
+                    g_code_executor.execute_step(&mut height_map);
+                }
 
                 g_code_executor_drawer.draw(&mut target, &perspective, &view, g_code_executor.current_position().clone(), &drawing_parameters);
             }
