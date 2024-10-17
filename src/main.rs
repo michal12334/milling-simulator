@@ -7,6 +7,7 @@ pub mod g_code;
 pub mod g_code_drawer;
 pub mod milling_cutter;
 pub mod g_code_executor;
+pub mod g_code_executor_drawer;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
@@ -14,6 +15,7 @@ use egui::{DragValue, ViewportId, Widget};
 use g_code::GCode;
 use g_code_drawer::GCodeDrawer;
 use g_code_executor::GCodeExecutor;
+use g_code_executor_drawer::GCodeExecutorDrawer;
 use generate_block::generate_block;
 use glium::Surface;
 use height_map::HeightMap;
@@ -78,6 +80,7 @@ fn main() {
     let mut g_code_executor: Option<GCodeExecutor> = None;
     let mut g_code_vertices = glium::VertexBuffer::new(&display, &[]).unwrap();
     let g_code_drawer = GCodeDrawer::new(&display);
+    let g_code_executor_drawer = GCodeExecutorDrawer::new(&display);
 
     let mut previous_time = Local::now();
 
@@ -172,14 +175,18 @@ fn main() {
                 g_code_drawer.draw(&mut target, &g_code_vertices, &perspective, &view, &drawing_parameters);
             }
 
-            egui_glium.paint(&display, &mut target);
-
-            target.finish().unwrap();
-
             if g_code_executor.is_some() {
                 let g_code_executor = g_code_executor.as_mut().unwrap();
                 g_code_executor.execute_step(&mut height_map);
+
+                g_code_executor_drawer.draw(&mut target, &perspective, &view, g_code_executor.current_position().clone(), &drawing_parameters);
+
+                println!("position: {:?}", g_code_executor.current_position());
             }
+
+            egui_glium.paint(&display, &mut target);
+
+            target.finish().unwrap();
 
             height_map.update_texture();
         };
