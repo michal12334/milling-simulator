@@ -180,8 +180,6 @@ fn main() {
                 g_code_executor.execute_step(&mut height_map);
 
                 g_code_executor_drawer.draw(&mut target, &perspective, &view, g_code_executor.current_position().clone(), &drawing_parameters);
-
-                println!("position: {:?}", g_code_executor.current_position());
             }
 
             egui_glium.paint(&display, &mut target);

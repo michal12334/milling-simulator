@@ -40,10 +40,24 @@ impl GCodeExecutorDrawer {
         let program =
             Program::from_source(display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
+        let size = 0.4;
+        let y_size = 2.0;
+
         let vertex_buffer = VertexBuffer::new(
             display,
              &[
-                SmallVertex::new([-5.0, 0.0, -5.0]), SmallVertex::new([5.0, 0.0, -5.0]), SmallVertex::new([-5.0, 0.0, 5.0])
+                SmallVertex::new([-size, 0.0, -size]), SmallVertex::new([size, 0.0, -size]), SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([size, 0.0, -size]), SmallVertex::new([size, 0.0, size]), SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([-size, y_size, -size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([size, y_size, -size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([size, y_size, size]),
+                SmallVertex::new([-size, 0.0, -size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([size, 0.0, -size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([size, 0.0, size]), SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, y_size, size]), SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([-size, 0.0, -size]),
+                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, 0.0, -size]), SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, y_size, -size]), SmallVertex::new([size, y_size, size]),
             ]
         ).unwrap();
 
