@@ -27,7 +27,7 @@ impl GCodeExecutor {
         let cutter = Self::get_cutter(&code, resolution, size);
 
         Self {
-            current_position: (0.0, 30.0, 0.0),
+            current_position: (0.0, 22.0, 0.0),
             current_instruction: 0,
             code,
             cutter,
@@ -52,7 +52,7 @@ impl GCodeExecutor {
             MillingCutter::Spherical(size) => *size,
         } as f32 / 10.0;
 
-        let single_size = (size.0 / (resolution.0 as f32), size.2 / (resolution.2 as f32));
+        let single_size: (f32, f32) = (size.0 / (resolution.0 as f32), size.2 / (resolution.2 as f32));
 
         let cutter_space = ((cutter_size / single_size.0) as usize, (cutter_size / single_size.1) as usize);
 
@@ -85,15 +85,15 @@ impl GCodeExecutor {
             let start = ((self.current_position.0 / single_size.0) as i32, (self.current_position.1 / single_size.1) as i32, (self.current_position.2 / single_size.2) as i32);
             let instruction = self.code.instructions()[self.current_instruction].clone();
             let end_x = match instruction.x() {
-                Some(v) => (v / single_size.0) as i32,
+                Some(v) => (v / single_size.0 / 10.0) as i32,
                 None => start.0,
             };
             let end_y = match instruction.y() {
-                Some(v) => (v / single_size.0) as i32,
+                Some(v) => (v / single_size.2 / 10.0) as i32,
                 None => start.2,
             };
             let end_z = match instruction.z() {
-                Some(v) => (v / single_size.0) as i32,
+                Some(v) => (v / single_size.1 / 10.0) as i32,
                 None => start.1,
             };
             let end = (end_x, end_z, end_y);
@@ -114,8 +114,8 @@ impl GCodeExecutor {
             for (x, z) in xs.iter().flat_map(|x| zs.iter().map(|z| (*x, *z))) {
                 if x >= 0 && x < self.resolution.0 as i32 && z >= 0 && z < self.resolution.2 as i32 {
                     let index = (x as usize, z as usize);
-                    if height_map.get_height(index) >= c.position_offset.1 {
-                        height_map.write(index, c.position_offset.1);
+                    if height_map.get_height(index) >= self.current_position.1 + c.position_offset.1 {
+                        height_map.write(index, self.current_position.1 + c.position_offset.1);
                     }
                 }
             }
