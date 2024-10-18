@@ -6,7 +6,7 @@ use crate::vertex::SmallVertex;
 
 pub struct GCodeExecutorDrawer {
     program: Program,
-    vertex_buffer: VertexBuffer<SmallVertex>
+    vertex_buffer: VertexBuffer<SmallVertex>,
 }
 
 impl GCodeExecutorDrawer {
@@ -45,23 +45,51 @@ impl GCodeExecutorDrawer {
 
         let vertex_buffer = VertexBuffer::new(
             display,
-             &[
-                SmallVertex::new([-size, 0.0, -size]), SmallVertex::new([size, 0.0, -size]), SmallVertex::new([-size, 0.0, size]),
-                SmallVertex::new([size, 0.0, -size]), SmallVertex::new([size, 0.0, size]), SmallVertex::new([-size, 0.0, size]),
-                SmallVertex::new([-size, y_size, -size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([size, y_size, -size]),
-                SmallVertex::new([size, y_size, -size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([size, y_size, size]),
-                SmallVertex::new([-size, 0.0, -size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([size, 0.0, -size]),
-                SmallVertex::new([size, 0.0, -size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([size, y_size, -size]),
-                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([size, 0.0, size]), SmallVertex::new([-size, y_size, size]),
-                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, y_size, size]), SmallVertex::new([-size, y_size, size]),
-                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([-size, y_size, -size]), SmallVertex::new([-size, 0.0, -size]),
-                SmallVertex::new([-size, 0.0, size]), SmallVertex::new([-size, y_size, size]), SmallVertex::new([-size, y_size, -size]),
-                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, 0.0, -size]), SmallVertex::new([size, y_size, -size]),
-                SmallVertex::new([size, 0.0, size]), SmallVertex::new([size, y_size, -size]), SmallVertex::new([size, y_size, size]),
-            ]
-        ).unwrap();
+            &[
+                SmallVertex::new([-size, 0.0, -size]),
+                SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([size, 0.0, size]),
+                SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([size, y_size, size]),
+                SmallVertex::new([-size, 0.0, -size]),
+                SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([size, 0.0, size]),
+                SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([size, 0.0, size]),
+                SmallVertex::new([size, y_size, size]),
+                SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([-size, 0.0, -size]),
+                SmallVertex::new([-size, 0.0, size]),
+                SmallVertex::new([-size, y_size, size]),
+                SmallVertex::new([-size, y_size, -size]),
+                SmallVertex::new([size, 0.0, size]),
+                SmallVertex::new([size, 0.0, -size]),
+                SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([size, 0.0, size]),
+                SmallVertex::new([size, y_size, -size]),
+                SmallVertex::new([size, y_size, size]),
+            ],
+        )
+        .unwrap();
 
-        Self { program, vertex_buffer }
+        Self {
+            program,
+            vertex_buffer,
+        }
     }
 
     pub fn draw(

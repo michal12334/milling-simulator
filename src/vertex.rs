@@ -20,7 +20,11 @@ impl Vertex {
     }
 
     pub fn from_tuples(position: (f32, f32, f32), tex_coords: (f32, f32), normal: u8) -> Self {
-        Self::new([position.0, position.1, position.2], [tex_coords.0, tex_coords.1], normal)
+        Self::new(
+            [position.0, position.1, position.2],
+            [tex_coords.0, tex_coords.1],
+            normal,
+        )
     }
 }
 
@@ -33,6 +37,6 @@ implement_vertex!(SmallVertex, position);
 
 impl SmallVertex {
     pub fn new(position: [f32; 3]) -> Self {
-        Self { position, }
+        Self { position }
     }
 }

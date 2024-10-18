@@ -21,7 +21,15 @@ impl HeightMap {
 
         let data = vec![vec![height; resolution.0 as usize]; resolution.2 as usize];
 
-        texture.write(Rect { left: 0, bottom: 0, width: resolution.0, height: resolution.2 }, data.clone());
+        texture.write(
+            Rect {
+                left: 0,
+                bottom: 0,
+                width: resolution.0,
+                height: resolution.2,
+            },
+            data.clone(),
+        );
 
         Self {
             texture,
@@ -41,7 +49,15 @@ impl HeightMap {
 
     pub fn update_texture(&mut self) {
         for i in self.changed_indices.iter() {
-            self.texture.write(Rect { left: i.0 as u32, bottom: i.1 as u32, width: 1, height: 1, }, vec![vec![self.data[i.0][i.1]]]);
+            self.texture.write(
+                Rect {
+                    left: i.0 as u32,
+                    bottom: i.1 as u32,
+                    width: 1,
+                    height: 1,
+                },
+                vec![vec![self.data[i.0][i.1]]],
+            );
         }
         self.changed_indices.clear();
     }

@@ -11,13 +11,17 @@ pub struct GCode {
 impl GCode {
     pub fn from_file(file_path: &str) -> Option<Self> {
         let dot_position = file_path.find(".")?;
-        let file_extension = &file_path[(dot_position+1)..];
+        let file_extension = &file_path[(dot_position + 1)..];
         let cutter = MillingCutter::parse(file_extension)?;
 
         let content = std::fs::read_to_string(file_path).unwrap();
-        let instructions = content.split_whitespace()
-            .filter_map(|line| { GCodeInstruction::parse(line) })
+        let instructions = content
+            .split_whitespace()
+            .filter_map(|line| GCodeInstruction::parse(line))
             .collect();
-        Some(Self { instructions, cutter, })
+        Some(Self {
+            instructions,
+            cutter,
+        })
     }
 }

@@ -29,13 +29,13 @@ impl GCodeInstruction {
 
         if let Some(x_begin) = x_begin {
             let x_end = if y_begin.is_some() {
-                    y_begin
-                } else if z_begin.is_some() {
-                    z_begin
-                } else {
-                    None
-                };
-            
+                y_begin
+            } else if z_begin.is_some() {
+                z_begin
+            } else {
+                None
+            };
+
             let x_as_str = match x_end {
                 Some(x_end) => &instruction[(x_begin + 1)..x_end],
                 None => &instruction[(x_begin + 1)..],
@@ -46,7 +46,7 @@ impl GCodeInstruction {
 
         if let Some(y_begin) = y_begin {
             let y_end = z_begin;
-            
+
             let y_as_str = match y_end {
                 Some(y_end) => &instruction[(y_begin + 1)..y_end],
                 None => &instruction[(y_begin + 1)..],
@@ -61,9 +61,7 @@ impl GCodeInstruction {
             z = Some(z_as_str.parse::<f32>().ok()?);
         }
 
-        Some(GCodeInstruction {
-            n, x, y, z,
-        })
+        Some(GCodeInstruction { n, x, y, z })
     }
 }
 
@@ -79,9 +77,21 @@ mod tests {
     #[case("N123G01X00.000", 123, Some(0.0), None, None)]
     #[case("N123G01X00.000Y00.000", 123, Some(0.0), Some(0.0), None)]
     #[case("N123G01X00.000Y00.000Z00.000", 123, Some(0.0), Some(0.0), Some(0.0))]
-    #[case("N123G01X12.345Y21.555Z05.005", 123, Some(12.345), Some(21.555), Some(5.005))]
+    #[case(
+        "N123G01X12.345Y21.555Z05.005",
+        123,
+        Some(12.345),
+        Some(21.555),
+        Some(5.005)
+    )]
     #[case("N123G01X-12.345Y21.555Z-05.005", 123, Some(-12.345), Some(21.555), Some(-5.005))]
-    fn code_is_parsed(#[case] line: &str, #[case] n: u32, #[case] x: Option<f32>, #[case] y: Option<f32>, #[case] z: Option<f32>) {
+    fn code_is_parsed(
+        #[case] line: &str,
+        #[case] n: u32,
+        #[case] x: Option<f32>,
+        #[case] y: Option<f32>,
+        #[case] z: Option<f32>,
+    ) {
         let instruction = GCodeInstruction::parse(line);
         assert!(instruction.is_some());
 

@@ -1,9 +1,11 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{uniform, BackfaceCullingMode, Display, DrawParameters, Frame, PolygonMode, Program, Surface, VertexBuffer};
+use glium::{
+    uniform, BackfaceCullingMode, Display, DrawParameters, Frame, PolygonMode, Program, Surface,
+    VertexBuffer,
+};
 use nalgebra::Matrix4;
 
 use crate::vertex::SmallVertex;
-
 
 pub struct GCodeDrawer {
     program: Program,

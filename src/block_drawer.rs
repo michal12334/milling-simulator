@@ -4,7 +4,6 @@ use nalgebra::{Matrix4, Vector3};
 
 use crate::vertex::Vertex;
 
-
 pub struct BlockDrawer {
     program: Program,
 }

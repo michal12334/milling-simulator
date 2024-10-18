@@ -1,13 +1,13 @@
-pub mod vertex;
-pub mod generate_block;
 pub mod block_drawer;
-pub mod height_map;
-pub mod g_code_instruction;
 pub mod g_code;
 pub mod g_code_drawer;
-pub mod milling_cutter;
 pub mod g_code_executor;
 pub mod g_code_executor_drawer;
+pub mod g_code_instruction;
+pub mod generate_block;
+pub mod height_map;
+pub mod milling_cutter;
+pub mod vertex;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
@@ -99,43 +99,60 @@ fn main() {
                     if !block_created {
                         ui.horizontal(|ui| {
                             ui.label("size x: ");
-                            DragValue::new(&mut block_size.0).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            DragValue::new(&mut block_size.0)
+                                .clamp_range(1.0..=20.0)
+                                .speed(0.1)
+                                .ui(ui);
                             ui.label("cm");
                         });
                         ui.horizontal(|ui| {
                             ui.label("size y: ");
-                            DragValue::new(&mut block_size.1).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            DragValue::new(&mut block_size.1)
+                                .clamp_range(1.0..=20.0)
+                                .speed(0.1)
+                                .ui(ui);
                             ui.label("cm");
                         });
                         ui.horizontal(|ui| {
                             ui.label("size z: ");
-                            DragValue::new(&mut block_size.2).clamp_range(1.0..=20.0).speed(0.1).ui(ui);
+                            DragValue::new(&mut block_size.2)
+                                .clamp_range(1.0..=20.0)
+                                .speed(0.1)
+                                .ui(ui);
                             ui.label("cm");
                         });
 
                         ui.horizontal(|ui| {
                             ui.label("resoultion x: ");
-                            DragValue::new(&mut block_resolution.0).clamp_range(10..=1500).ui(ui);
+                            DragValue::new(&mut block_resolution.0)
+                                .clamp_range(10..=1500)
+                                .ui(ui);
                         });
                         ui.horizontal(|ui| {
                             ui.label("resoultion y: ");
-                            DragValue::new(&mut block_resolution.1).clamp_range(10..=1500).ui(ui);
+                            DragValue::new(&mut block_resolution.1)
+                                .clamp_range(10..=1500)
+                                .ui(ui);
                         });
                         ui.horizontal(|ui| {
                             ui.label("resoultion z: ");
-                            DragValue::new(&mut block_resolution.2).clamp_range(10..=1500).ui(ui);
+                            DragValue::new(&mut block_resolution.2)
+                                .clamp_range(10..=1500)
+                                .ui(ui);
                         });
 
                         if ui.button("Create block").clicked() {
                             block = generate_block(block_size, block_resolution);
                             vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
-                            height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
+                            height_map =
+                                HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             block_created = true;
                         }
                     } else {
                         if ui.button("Reset").clicked() {
                             block_created = false;
-                            height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
+                            height_map =
+                                HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             g_code_loaded = false;
                         }
 
@@ -148,25 +165,38 @@ fn main() {
                                 g_code_loaded = true;
                                 let mut vertices: Vec<SmallVertex> = Vec::new();
                                 for instruction in g_code.clone().unwrap().instructions() {
-                                    let x = instruction.x().unwrap_or_else(|| vertices.last().unwrap().position()[0]);
-                                    let y = instruction.y().unwrap_or_else(|| vertices.last().unwrap().position()[1]);
-                                    let z = instruction.z().unwrap_or_else(|| vertices.last().unwrap().position()[2]);
+                                    let x = instruction
+                                        .x()
+                                        .unwrap_or_else(|| vertices.last().unwrap().position()[0]);
+                                    let y = instruction
+                                        .y()
+                                        .unwrap_or_else(|| vertices.last().unwrap().position()[1]);
+                                    let z = instruction
+                                        .z()
+                                        .unwrap_or_else(|| vertices.last().unwrap().position()[2]);
                                     vertices.push(SmallVertex::new([x, z, y]));
                                 }
-                                g_code_vertices = glium::VertexBuffer::new(&display, &vertices).unwrap();
+                                g_code_vertices =
+                                    glium::VertexBuffer::new(&display, &vertices).unwrap();
 
                                 if g_code_executor.is_some() {
                                     let g_code_executor = g_code_executor.as_mut().unwrap();
                                     g_code_executor.load(g_code.unwrap());
                                 } else {
-                                    g_code_executor = Some(GCodeExecutor::new(g_code.unwrap(), block_resolution, block_size));
+                                    g_code_executor = Some(GCodeExecutor::new(
+                                        g_code.unwrap(),
+                                        block_resolution,
+                                        block_size,
+                                    ));
                                 }
                             }
                         }
 
                         ui.horizontal(|ui| {
                             ui.label("Speed: ");
-                            DragValue::new(&mut milling_speed).clamp_range(1..=1000).ui(ui);
+                            DragValue::new(&mut milling_speed)
+                                .clamp_range(1..=1000)
+                                .ui(ui);
                         });
 
                         ui.checkbox(&mut draw_g_code_lines, "Draw lines");
@@ -182,10 +212,24 @@ fn main() {
 
             target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-            block_drawer.draw(&mut target, &vertex_buffer, &perspective, &view, &drawing_parameters, -camera_distant * camera_direction, height_map.get_texture());
+            block_drawer.draw(
+                &mut target,
+                &vertex_buffer,
+                &perspective,
+                &view,
+                &drawing_parameters,
+                -camera_distant * camera_direction,
+                height_map.get_texture(),
+            );
 
             if g_code_loaded && draw_g_code_lines {
-                g_code_drawer.draw(&mut target, &g_code_vertices, &perspective, &view, &drawing_parameters);
+                g_code_drawer.draw(
+                    &mut target,
+                    &g_code_vertices,
+                    &perspective,
+                    &view,
+                    &drawing_parameters,
+                );
             }
 
             if g_code_executor.is_some() {
@@ -194,7 +238,13 @@ fn main() {
                     g_code_executor.execute_step(&mut height_map);
                 }
 
-                g_code_executor_drawer.draw(&mut target, &perspective, &view, g_code_executor.current_position().clone(), &drawing_parameters);
+                g_code_executor_drawer.draw(
+                    &mut target,
+                    &perspective,
+                    &view,
+                    g_code_executor.current_position().clone(),
+                    &drawing_parameters,
+                );
             }
 
             egui_glium.paint(&display, &mut target);
@@ -255,7 +305,11 @@ fn main() {
                             camera_move_button_pressed = *state == ElementState::Pressed;
                         }
                     }
-                    WindowEvent::KeyboardInput { device_id: _, event, is_synthetic: _ } => {
+                    WindowEvent::KeyboardInput {
+                        device_id: _,
+                        event,
+                        is_synthetic: _,
+                    } => {
                         if event.logical_key == "c" && event.state.is_pressed() && !event.repeat {
                             camera_move_button_pressed = !camera_move_button_pressed;
                         }
@@ -276,13 +330,11 @@ fn main() {
                     WindowEvent::TouchpadMagnify { delta, .. } => {
                         camera_distant -= *delta as f32 * 3.0;
                         view = Matrix4::look_at_rh(
-                            &Point3::from_slice(
-                                (-camera_distant * camera_direction).as_slice(),
-                            ),
+                            &Point3::from_slice((-camera_distant * camera_direction).as_slice()),
                             &Point3::new(0.0, 0.0, 0.0),
                             &camera_up,
                         );
-                    },
+                    }
                     _ => {}
                 }
 

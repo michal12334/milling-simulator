@@ -46,15 +46,26 @@ impl GCodeExecutor {
         self.current_points = None;
     }
 
-    fn get_cutter(code: &GCode, resolution: (u32, u32, u32), size: (f32, f32, f32)) -> Vec<CutterPart> {
+    fn get_cutter(
+        code: &GCode,
+        resolution: (u32, u32, u32),
+        size: (f32, f32, f32),
+    ) -> Vec<CutterPart> {
         let cutter_size = match code.cutter() {
             MillingCutter::Flat(size) => *size,
             MillingCutter::Spherical(size) => *size,
-        } as f32 / 20.0;
+        } as f32
+            / 20.0;
 
-        let single_size: (f32, f32) = (size.0 / (resolution.0 as f32), size.2 / (resolution.2 as f32));
+        let single_size: (f32, f32) = (
+            size.0 / (resolution.0 as f32),
+            size.2 / (resolution.2 as f32),
+        );
 
-        let cutter_space = ((cutter_size / single_size.0) as usize, (cutter_size / single_size.1) as usize);
+        let cutter_space = (
+            (cutter_size / single_size.0) as usize,
+            (cutter_size / single_size.1) as usize,
+        );
 
         (0..cutter_space.0)
             .flat_map(|x| (0..cutter_space.1).map(move |z| (x, z)))
@@ -63,7 +74,12 @@ impl GCodeExecutor {
                 let z_offset = single_size.1 * z as f32;
                 let y_offset = match code.cutter() {
                     MillingCutter::Flat(_) => 0.0,
-                    MillingCutter::Spherical(_) => cutter_size - (cutter_size.powi(2) - x_offset.powi(2) - z_offset.powi(2)).max(0.0).sqrt(),
+                    MillingCutter::Spherical(_) => {
+                        cutter_size
+                            - (cutter_size.powi(2) - x_offset.powi(2) - z_offset.powi(2))
+                                .max(0.0)
+                                .sqrt()
+                    }
                 };
 
                 CutterPart::new((x, z), (x_offset, y_offset, z_offset))
@@ -80,9 +96,17 @@ impl GCodeExecutor {
             return;
         }
 
-        let single_size = (self.size.0 / (self.resolution.0 as f32), self.size.1 / (self.resolution.1 as f32), self.size.2 / (self.resolution.2 as f32));
+        let single_size = (
+            self.size.0 / (self.resolution.0 as f32),
+            self.size.1 / (self.resolution.1 as f32),
+            self.size.2 / (self.resolution.2 as f32),
+        );
         if self.current_points.is_none() {
-            let start = ((self.current_position.0 / single_size.0) as i32, (self.current_position.1 / single_size.1) as i32, (self.current_position.2 / single_size.2) as i32);
+            let start = (
+                (self.current_position.0 / single_size.0) as i32,
+                (self.current_position.1 / single_size.1) as i32,
+                (self.current_position.2 / single_size.2) as i32,
+            );
             let instruction = self.code.instructions()[self.current_instruction].clone();
             let end_x = match instruction.x() {
                 Some(v) => (v / single_size.0 / 10.0) as i32,
@@ -106,15 +130,27 @@ impl GCodeExecutor {
 
         let point = current_points[current_point];
 
-        self.current_position = (single_size.0 * point.0 as f32, single_size.1 * point.1 as f32, single_size.2 * point.2 as f32);
+        self.current_position = (
+            single_size.0 * point.0 as f32,
+            single_size.1 * point.1 as f32,
+            single_size.2 * point.2 as f32,
+        );
 
         for c in self.cutter.iter() {
-            let xs = [point.0 + self.resolution.0 as i32 / 2 + c.index_offset.0 as i32, point.0 + self.resolution.0 as i32 / 2 - c.index_offset.0 as i32];
-            let zs = [point.2 + self.resolution.2 as i32 / 2 + c.index_offset.1 as i32, point.2 + self.resolution.2 as i32 / 2 - c.index_offset.1 as i32];
+            let xs = [
+                point.0 + self.resolution.0 as i32 / 2 + c.index_offset.0 as i32,
+                point.0 + self.resolution.0 as i32 / 2 - c.index_offset.0 as i32,
+            ];
+            let zs = [
+                point.2 + self.resolution.2 as i32 / 2 + c.index_offset.1 as i32,
+                point.2 + self.resolution.2 as i32 / 2 - c.index_offset.1 as i32,
+            ];
             for (x, z) in xs.iter().flat_map(|x| zs.iter().map(|z| (*x, *z))) {
-                if x >= 0 && x < self.resolution.0 as i32 && z >= 0 && z < self.resolution.2 as i32 {
+                if x >= 0 && x < self.resolution.0 as i32 && z >= 0 && z < self.resolution.2 as i32
+                {
                     let index = (x as usize, z as usize);
-                    if height_map.get_height(index) >= self.current_position.1 + c.position_offset.1 {
+                    if height_map.get_height(index) >= self.current_position.1 + c.position_offset.1
+                    {
                         height_map.write(index, self.current_position.1 + c.position_offset.1);
                     }
                 }
