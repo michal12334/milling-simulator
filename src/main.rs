@@ -11,7 +11,7 @@ pub mod vertex;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
-use egui::{DragValue, ViewportId, Widget};
+use egui::{Color32, DragValue, ViewportId, Widget};
 use g_code::GCode;
 use g_code_drawer::GCodeDrawer;
 use g_code_executor::GCodeExecutor;
@@ -83,6 +83,7 @@ fn main() {
     let g_code_executor_drawer = GCodeExecutorDrawer::new(&display);
     let mut milling_speed = 1u32;
     let mut draw_g_code_lines = true;
+    let mut max_cutter_immersion = 5f32;
 
     let mut previous_time = Local::now();
 
@@ -197,7 +198,8 @@ fn main() {
                             if g_code_executor.is_some() {
                                 let g_code_executor = g_code_executor.as_mut().unwrap();
                                 while !g_code_executor.execution_finished() {
-                                    g_code_executor.execute_step(&mut height_map);
+                                    g_code_executor
+                                        .execute_step(&mut height_map, max_cutter_immersion);
                                 }
                             }
                         }
@@ -210,6 +212,28 @@ fn main() {
                         });
 
                         ui.checkbox(&mut draw_g_code_lines, "Draw lines");
+
+                        ui.horizontal(|ui| {
+                            ui.label("Max immersion: ");
+                            DragValue::new(&mut max_cutter_immersion)
+                                .clamp_range(0.1..=10.0)
+                                .ui(ui);
+                            ui.label("cm");
+                        });
+
+                        if g_code_executor.is_some() {
+                            let g_code_executor = g_code_executor.as_ref().unwrap();
+                            if let Some(error) = g_code_executor.error() {
+                                match error {
+                                    g_code_executor::ExecutionError::TooDeepImmersion => {
+                                        ui.colored_label(Color32::RED, "Too deep cutter immersion")
+                                    }
+                                    g_code_executor::ExecutionError::VerticalCut => {
+                                        ui.colored_label(Color32::RED, "Vertical cut")
+                                    }
+                                };
+                            }
+                        }
                     }
 
                     ui.label(format!("FPS: {:.1}", fps));
@@ -245,7 +269,7 @@ fn main() {
             if g_code_executor.is_some() {
                 let g_code_executor = g_code_executor.as_mut().unwrap();
                 for _ in 0..milling_speed {
-                    g_code_executor.execute_step(&mut height_map);
+                    g_code_executor.execute_step(&mut height_map, max_cutter_immersion);
                 }
 
                 g_code_executor_drawer.draw(

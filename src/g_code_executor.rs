@@ -14,12 +14,19 @@ pub struct GCodeExecutor {
     size: (f32, f32, f32),
     current_points: Option<Vec<(i32, i32, i32)>>,
     current_point: Option<usize>,
+    error: Option<ExecutionError>,
 }
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct CutterPart {
     index_offset: (usize, usize),
     position_offset: (f32, f32, f32),
+}
+
+#[derive(Debug, Clone, new)]
+pub enum ExecutionError {
+    TooDeepImmersion,
+    VerticalCut,
 }
 
 impl GCodeExecutor {
@@ -35,6 +42,7 @@ impl GCodeExecutor {
             size,
             current_points: None,
             current_point: None,
+            error: None,
         }
     }
 
@@ -88,10 +96,10 @@ impl GCodeExecutor {
     }
 
     pub fn execution_finished(&self) -> bool {
-        self.current_instruction >= self.code.instructions().len() - 1
+        self.current_instruction >= self.code.instructions().len() - 1 || self.error.is_some()
     }
 
-    pub fn execute_step(&mut self, height_map: &mut HeightMap) {
+    pub fn execute_step(&mut self, height_map: &mut HeightMap, max_cutter_immersion: f32) {
         if self.execution_finished() {
             return;
         }
@@ -149,8 +157,33 @@ impl GCodeExecutor {
                 if x >= 0 && x < self.resolution.0 as i32 && z >= 0 && z < self.resolution.2 as i32
                 {
                     let index = (x as usize, z as usize);
-                    if height_map.get_height(index) >= self.current_position.1 + c.position_offset.1
+
+                    let immersion = height_map.get_height(index) - self.current_position.1;
+
+                    if immersion > max_cutter_immersion {
+                        self.error = Some(ExecutionError::new_too_deep_immersion());
+                        return;
+                    }
+
+                    if height_map.get_height(index) > self.current_position.1 + c.position_offset.1
                     {
+                        let is_vertical = {
+                            match self.code.cutter() {
+                                MillingCutter::Flat(_) => {
+                                    let first = current_points.first().unwrap();
+                                    let last = current_points.last().unwrap();
+
+                                    first.0 == last.0 && first.2 == last.2
+                                }
+                                MillingCutter::Spherical(_) => false,
+                            }
+                        };
+
+                        if is_vertical {
+                            self.error = Some(ExecutionError::new_vertical_cut());
+                            return;
+                        }
+
                         height_map.write(index, self.current_position.1 + c.position_offset.1);
                     }
                 }
