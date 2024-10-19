@@ -14,19 +14,19 @@ impl HeightMap {
             display,
             glium::texture::UncompressedFloatFormat::F32,
             glium::texture::MipmapsOption::NoMipmap,
-            resolution.0,
             resolution.2,
+            resolution.0,
         )
         .unwrap();
 
-        let data = vec![vec![height; resolution.0 as usize]; resolution.2 as usize];
+        let data = vec![vec![height; resolution.2 as usize]; resolution.0 as usize];
 
         texture.write(
             Rect {
                 left: 0,
                 bottom: 0,
-                width: resolution.0,
-                height: resolution.2,
+                width: resolution.2,
+                height: resolution.0,
             },
             data.clone(),
         );
@@ -51,8 +51,8 @@ impl HeightMap {
         for i in self.changed_indices.iter() {
             self.texture.write(
                 Rect {
-                    left: i.0 as u32,
-                    bottom: i.1 as u32,
+                    left: i.1 as u32,
+                    bottom: i.0 as u32,
                     width: 1,
                     height: 1,
                 },

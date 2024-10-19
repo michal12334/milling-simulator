@@ -16,8 +16,8 @@ pub fn generate_block(size: (f32, f32, f32), resolution: (u32, u32, u32)) -> Vec
         .flat_map(|x| (0..resolution.2).map(move |z| (x, z)))
         .flat_map(|(x, z)| {
             let tc = (
-                x as f32 / ((resolution.0 - 1) as f32),
                 z as f32 / ((resolution.2 - 1) as f32),
+                x as f32 / ((resolution.0 - 1) as f32),
             );
             let a = (
                 (x as f32 / resolution.0 as f32 - 0.5) * size.0,

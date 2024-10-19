@@ -63,6 +63,18 @@ impl GCodeInstruction {
 
         Some(GCodeInstruction { n, x, y, z })
     }
+
+    pub fn normalized_x(&self) -> Option<f32> {
+        self.y
+    }
+
+    pub fn normalized_y(&self) -> Option<f32> {
+        self.z
+    }
+
+    pub fn normalized_z(&self) -> Option<f32> {
+        self.x
+    }
 }
 
 #[cfg(test)]

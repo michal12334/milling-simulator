@@ -154,6 +154,7 @@ fn main() {
                             height_map =
                                 HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             g_code_loaded = false;
+                            g_code_executor = None;
                         }
 
                         if ui.button("Load code").clicked() {
@@ -166,15 +167,15 @@ fn main() {
                                 let mut vertices: Vec<SmallVertex> = Vec::new();
                                 for instruction in g_code.clone().unwrap().instructions() {
                                     let x = instruction
-                                        .x()
+                                        .normalized_x()
                                         .unwrap_or_else(|| vertices.last().unwrap().position()[0]);
                                     let y = instruction
-                                        .y()
+                                        .normalized_y()
                                         .unwrap_or_else(|| vertices.last().unwrap().position()[1]);
                                     let z = instruction
-                                        .z()
+                                        .normalized_z()
                                         .unwrap_or_else(|| vertices.last().unwrap().position()[2]);
-                                    vertices.push(SmallVertex::new([x, z, y]));
+                                    vertices.push(SmallVertex::new([x, y, z]));
                                 }
                                 g_code_vertices =
                                     glium::VertexBuffer::new(&display, &vertices).unwrap();

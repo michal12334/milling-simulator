@@ -108,19 +108,19 @@ impl GCodeExecutor {
                 (self.current_position.2 / single_size.2) as i32,
             );
             let instruction = self.code.instructions()[self.current_instruction].clone();
-            let end_x = match instruction.x() {
+            let end_x = match instruction.normalized_x() {
                 Some(v) => (v / single_size.0 / 10.0) as i32,
                 None => start.0,
             };
-            let end_y = match instruction.y() {
-                Some(v) => (v / single_size.2 / 10.0) as i32,
-                None => start.2,
-            };
-            let end_z = match instruction.z() {
+            let end_y = match instruction.normalized_y() {
                 Some(v) => (v / single_size.1 / 10.0) as i32,
                 None => start.1,
             };
-            let end = (end_x, end_z, end_y);
+            let end_z = match instruction.normalized_z() {
+                Some(v) => (v / single_size.2 / 10.0) as i32,
+                None => start.2,
+            };
+            let end = (end_x, end_y, end_z);
             self.current_points = Some(Bresenham3d::new(start, end).collect());
             self.current_point = Some(0);
         }
