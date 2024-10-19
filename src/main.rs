@@ -159,9 +159,7 @@ fn main() {
                         }
 
                         if ui.button("Load code").clicked() {
-                            let path = FileDialog::new().pick_file().unwrap();
-                            let path = path.to_str().unwrap();
-                            let g_code = GCode::from_file(path);
+                            let g_code = load_g_code();
 
                             if g_code.is_some() {
                                 g_code_loaded = true;
@@ -384,4 +382,10 @@ fn main() {
             _ => (),
         }
     });
+}
+
+fn load_g_code() -> Option<GCode> {
+    let path = FileDialog::new().pick_file()?;
+    let path = path.to_str()?;
+    GCode::from_file(path)
 }
