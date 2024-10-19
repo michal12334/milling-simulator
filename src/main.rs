@@ -66,7 +66,7 @@ fn main() {
     );
     let mut camera_move_button_pressed = false;
 
-    let mut block_size = (15.0, 5.0, 15.0);
+    let mut block_size = (15.0, 10.0, 15.0);
     let mut block_resolution = (600, 600, 600);
     let mut block = generate_block(block_size, block_resolution);
     let mut vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
