@@ -193,6 +193,15 @@ fn main() {
                             }
                         }
 
+                        if ui.button("Instant").clicked() {
+                            if g_code_executor.is_some() {
+                                let g_code_executor = g_code_executor.as_mut().unwrap();
+                                while !g_code_executor.execution_finished() {
+                                    g_code_executor.execute_step(&mut height_map);
+                                }
+                            }
+                        }
+
                         ui.horizontal(|ui| {
                             ui.label("Speed: ");
                             DragValue::new(&mut milling_speed)
