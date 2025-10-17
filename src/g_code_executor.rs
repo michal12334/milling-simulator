@@ -77,6 +77,12 @@ impl GCodeExecutor {
 
         (0..cutter_space.0)
             .flat_map(|x| (0..cutter_space.1).map(move |z| (x, z)))
+            .filter(|&(x, z)| {
+                let x_offset = single_size.0 * x as f32;
+                let z_offset = single_size.1 * z as f32;
+                let distance = (x_offset.powi(2) + z_offset.powi(2)).sqrt();
+                distance <= cutter_size
+            })
             .map(|(x, z)| {
                 let x_offset = single_size.0 * x as f32;
                 let z_offset = single_size.1 * z as f32;
