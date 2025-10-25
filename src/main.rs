@@ -7,7 +7,10 @@ pub mod g_code_instruction;
 pub mod generate_block;
 pub mod height_map;
 pub mod milling_cutter;
+pub mod target_height_map;
 pub mod vertex;
+
+use std::fs;
 
 use block_drawer::BlockDrawer;
 use chrono::Local;
@@ -23,6 +26,8 @@ use nalgebra::{Matrix4, Point3, Vector3, Vector4};
 use rfd::FileDialog;
 use vertex::SmallVertex;
 use winit::event::{self, ElementState, MouseButton};
+
+use crate::target_height_map::TargetHeightMap;
 
 fn main() {
     let width = 1600;
@@ -84,6 +89,9 @@ fn main() {
     let mut milling_speed = 1u32;
     let mut draw_g_code_lines = true;
     let mut max_cutter_immersion = 5f32;
+
+    let mut target_height_map = TargetHeightMap::default().to_texture(&display);
+    let mut use_target_height_map = false;
 
     let mut previous_time = Local::now();
 
@@ -192,6 +200,13 @@ fn main() {
                             }
                         }
 
+                        if ui.button("Load target height map").clicked() {
+                            let thm = load_target_height_map();
+                            if let Some(thm) = thm {
+                                target_height_map = thm.to_texture(&display);
+                            }
+                        }
+
                         if ui.button("Instant").clicked() {
                             if g_code_executor.is_some() {
                                 let g_code_executor = g_code_executor.as_mut().unwrap();
@@ -210,6 +225,7 @@ fn main() {
                         });
 
                         ui.checkbox(&mut draw_g_code_lines, "Draw lines");
+                        ui.checkbox(&mut use_target_height_map, "Use target height map");
 
                         ui.horizontal(|ui| {
                             ui.label("Max immersion: ");
@@ -252,6 +268,8 @@ fn main() {
                 &drawing_parameters,
                 -camera_distant * camera_direction,
                 height_map.get_texture(),
+                &target_height_map,
+                use_target_height_map,
             );
 
             if g_code_loaded && draw_g_code_lines {
@@ -388,4 +406,10 @@ fn load_g_code() -> Option<GCode> {
     let path = FileDialog::new().pick_file()?;
     let path = path.to_str()?;
     GCode::from_file(path)
+}
+
+fn load_target_height_map() -> Option<TargetHeightMap> {
+    let path = FileDialog::new().pick_file()?;
+    let path = path.to_str()?;
+    serde_json::from_str(fs::read_to_string(path).ok()?.as_str()).ok()
 }
