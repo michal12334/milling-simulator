@@ -179,7 +179,7 @@ impl GCodeExecutor {
                                     let first = current_points.first().unwrap();
                                     let last = current_points.last().unwrap();
 
-                                    first.0 == last.0 && first.2 == last.2
+                                    first.0 == last.0 && first.2 == last.2 && first.1 != last.1
                                 }
                                 MillingCutter::Spherical(_) => false,
                             }
