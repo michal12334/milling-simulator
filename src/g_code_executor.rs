@@ -102,7 +102,7 @@ impl GCodeExecutor {
     }
 
     pub fn execution_finished(&self) -> bool {
-        self.current_instruction >= self.code.instructions().len() - 1 || self.error.is_some()
+        self.current_instruction >= self.code.instructions().len() || self.error.is_some()
     }
 
     pub fn execute_step(&mut self, height_map: &mut HeightMap, max_cutter_immersion: f32) {
