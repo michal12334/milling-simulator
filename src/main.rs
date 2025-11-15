@@ -74,7 +74,10 @@ fn main() {
     let mut block_size = (15.0, 10.0, 15.0);
     let mut block_resolution = (600, 600, 600);
     let mut block = generate_block(block_size, block_resolution);
-    let mut vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
+    let mut vertex_buffers = [
+        glium::VertexBuffer::new(&display, &block[0..block.len() / 2]).unwrap(),
+        glium::VertexBuffer::new(&display, &block[block.len() / 2..]).unwrap(),
+    ];
     let block_drawer = BlockDrawer::new(&display);
 
     let mut height_map = HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
@@ -152,7 +155,12 @@ fn main() {
 
                         if ui.button("Create block").clicked() {
                             block = generate_block(block_size, block_resolution);
-                            vertex_buffer = glium::VertexBuffer::new(&display, &block).unwrap();
+                            vertex_buffers = [
+                                glium::VertexBuffer::new(&display, &block[0..block.len() / 2])
+                                    .unwrap(),
+                                glium::VertexBuffer::new(&display, &block[block.len() / 2..])
+                                    .unwrap(),
+                            ];
                             height_map =
                                 HeightMap::new(block_resolution, block_size.1 / 2.0, &display);
                             block_created = true;
@@ -262,7 +270,18 @@ fn main() {
 
             block_drawer.draw(
                 &mut target,
-                &vertex_buffer,
+                &vertex_buffers[0],
+                &perspective,
+                &view,
+                &drawing_parameters,
+                -camera_distant * camera_direction,
+                height_map.get_texture(),
+                &target_height_map,
+                use_target_height_map,
+            );
+            block_drawer.draw(
+                &mut target,
+                &vertex_buffers[1],
                 &perspective,
                 &view,
                 &drawing_parameters,
