@@ -48,17 +48,27 @@ impl HeightMap {
     }
 
     pub fn update_texture(&mut self) {
-        for i in self.changed_indices.iter() {
-            self.texture.write(
-                Rect {
-                    left: i.1 as u32,
-                    bottom: i.0 as u32,
-                    width: 1,
-                    height: 1,
-                },
-                vec![vec![self.data[i.0][i.1]]],
-            );
+        if self.changed_indices.is_empty() {
+            return;
         }
+
+        let left = self.changed_indices.iter().map(|i| i.1).min().unwrap();
+        let bottom = self.changed_indices.iter().map(|i| i.0).min().unwrap();
+        let width = self.changed_indices.iter().map(|i| i.1).max().unwrap() - left + 1;
+        let height = self.changed_indices.iter().map(|i| i.0).max().unwrap() - bottom + 1;
+
+        self.texture.write(
+            Rect {
+                left: left as u32,
+                bottom: bottom as u32,
+                width: width as u32,
+                height: height as u32,
+            },
+            self.data[bottom..(bottom + height)]
+                .iter()
+                .map(|v| v[left..(left + width)].to_vec())
+                .collect::<Vec<_>>(),
+        );
         self.changed_indices.clear();
     }
 
