@@ -16,6 +16,7 @@ impl BlockDrawer {
             in vec3 position;
             in int normal;
             in vec2 tex_coords;
+            in vec2 bottom_tex_coords;
 
             out vec3 normal_out;
             out vec3 world;
@@ -31,6 +32,8 @@ impl BlockDrawer {
 
                 if (height > 0) {
                     height = texture(height_map, tex_coords).x;
+                } else if (bottom_tex_coords != tex_coords) {
+                    height = min(texture(height_map, bottom_tex_coords).x, texture(height_map, tex_coords).x);
                 }
 
                 world = vec3(position.x, height, position.z);
