@@ -92,6 +92,7 @@ fn main() {
     let mut milling_speed = 1u32;
     let mut draw_g_code_lines = true;
     let mut max_cutter_immersion = 5f32;
+    let mut limit_height_by_resolution = true;
 
     let mut target_height_map = TargetHeightMap::default().to_texture(&display);
     let mut use_target_height_map = false;
@@ -197,12 +198,14 @@ fn main() {
 
                                 if g_code_executor.is_some() {
                                     let g_code_executor = g_code_executor.as_mut().unwrap();
-                                    g_code_executor.load(g_code.unwrap());
+                                    g_code_executor
+                                        .load(g_code.unwrap(), limit_height_by_resolution);
                                 } else {
                                     g_code_executor = Some(GCodeExecutor::new(
                                         g_code.unwrap(),
                                         block_resolution,
                                         block_size,
+                                        limit_height_by_resolution,
                                     ));
                                 }
                             }
@@ -242,6 +245,11 @@ fn main() {
                                 .ui(ui);
                             ui.label("cm");
                         });
+
+                        ui.checkbox(
+                            &mut limit_height_by_resolution,
+                            "Limit height by resolution",
+                        );
 
                         if g_code_executor.is_some() {
                             let g_code_executor = g_code_executor.as_ref().unwrap();

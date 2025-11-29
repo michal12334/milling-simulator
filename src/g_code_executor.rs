@@ -15,6 +15,7 @@ pub struct GCodeExecutor {
     current_points: Option<Vec<(i32, i32, i32)>>,
     current_point: Option<usize>,
     error: Option<ExecutionError>,
+    resolution_heights: Vec<f32>,
 }
 
 #[derive(Debug, Clone, Getters, new)]
@@ -30,8 +31,26 @@ pub enum ExecutionError {
 }
 
 impl GCodeExecutor {
-    pub fn new(code: GCode, resolution: (u32, u32, u32), size: (f32, f32, f32)) -> Self {
-        let cutter = Self::get_cutter(&code, resolution, size);
+    pub fn new(
+        code: GCode,
+        resolution: (u32, u32, u32),
+        size: (f32, f32, f32),
+        limit_height_by_resolution: bool,
+    ) -> Self {
+        let resolution_heights = (0..=resolution.1)
+            .map(|i| i as f32 * size.1 / (resolution.1 as f32) - size.1 / 2.0)
+            .collect::<Vec<f32>>();
+
+        let cutter = Self::get_cutter(
+            &code,
+            resolution,
+            size,
+            if limit_height_by_resolution {
+                Some(&resolution_heights)
+            } else {
+                None
+            },
+        );
 
         Self {
             current_position: (0.0, 22.0, 0.0),
@@ -43,12 +62,22 @@ impl GCodeExecutor {
             current_points: None,
             current_point: None,
             error: None,
+            resolution_heights,
         }
     }
 
-    pub fn load(&mut self, code: GCode) {
+    pub fn load(&mut self, code: GCode, limit_height_by_resolution: bool) {
         self.current_instruction = 0;
-        self.cutter = Self::get_cutter(&code, self.resolution, self.size);
+        self.cutter = Self::get_cutter(
+            &code,
+            self.resolution,
+            self.size,
+            if limit_height_by_resolution {
+                Some(&self.resolution_heights)
+            } else {
+                None
+            },
+        );
         self.code = code;
         self.current_point = None;
         self.current_points = None;
@@ -58,6 +87,7 @@ impl GCodeExecutor {
         code: &GCode,
         resolution: (u32, u32, u32),
         size: (f32, f32, f32),
+        resolution_heights: Option<&Vec<f32>>,
     ) -> Vec<CutterPart> {
         let cutter_size = match code.cutter() {
             MillingCutter::Flat(size) => *size,
@@ -75,8 +105,8 @@ impl GCodeExecutor {
             (cutter_size / single_size.1) as usize,
         );
 
-        (0..cutter_space.0)
-            .flat_map(|x| (0..cutter_space.1).map(move |z| (x, z)))
+        (0..=cutter_space.0)
+            .flat_map(|x| (0..=cutter_space.1).map(move |z| (x, z)))
             .filter(|&(x, z)| {
                 let x_offset = single_size.0 * x as f32;
                 let z_offset = single_size.1 * z as f32;
@@ -89,10 +119,24 @@ impl GCodeExecutor {
                 let y_offset = match code.cutter() {
                     MillingCutter::Flat(_) => 0.0,
                     MillingCutter::Spherical(_) => {
-                        cutter_size
+                        let h = cutter_size
                             - (cutter_size.powi(2) - x_offset.powi(2) - z_offset.powi(2))
                                 .max(0.0)
-                                .sqrt()
+                                .sqrt();
+
+                        if let Some(resolution_heights) = resolution_heights {
+                            resolution_heights
+                                .iter()
+                                .cloned()
+                                .min_by(|h1, h2| {
+                                    let d1 = (h - h1).abs();
+                                    let d2 = (h - h2).abs();
+                                    d1.partial_cmp(&d2).unwrap()
+                                })
+                                .unwrap()
+                        } else {
+                            h
+                        }
                     }
                 };
 
